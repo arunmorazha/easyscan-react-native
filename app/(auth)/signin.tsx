@@ -329,7 +329,8 @@ const SignInScreen: React.FC = () => {
 
         // Auto navigate after 1.5 seconds
         setTimeout(() => {
-          router.replace("/(app)/upload-document"); // ✅ Go to main screen
+          // router.replace("/(app)/upload-document"); // ✅ Go to main screen
+          router.replace("/(app)/dashboard");
         }, 300);
       } else {
         setErrors((prev) => ({

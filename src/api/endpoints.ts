@@ -20,8 +20,8 @@
 //   ) =>
 //     `${baseUrl}?RequestID=Verify&RefType=${refType}&RefNo=${refNo}&UserID=${userId}&LoginSeqNo=${token}`,
 // };
-// src/api/endpoints.ts
 
+// src/api/endpoints.ts
 export const BASE_SERVICE_URL =
   "https://mambacloudservices.com/mambaservices.in/EasyScanServices.php";
 

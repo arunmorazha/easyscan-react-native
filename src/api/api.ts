@@ -122,6 +122,7 @@
 // );
 
 // export default api;
+// src/api/api.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -184,47 +185,6 @@ api.interceptors.request.use((config) => {
   });
 });
 
-// ============================================================
-// 🟣 RESPONSE INTERCEPTOR
-// → Automatically save updated TokenNo
-// ============================================================
-// api.interceptors.response.use(
-//   async (response) => {
-//     const newToken = response?.data?.TokenNo;
-//     const logHeader = `\n=== [RESPONSE @ ${getTime()}] ========================`;
-
-//     console.log(
-//       `${logHeader}\n🔹 URL: ${response.config?.url}\n🔹 Status: ${response.status}`
-//     );
-//     console.log("🔹 Response Data:", response.data);
-
-//     if (newToken) {
-//       console.log(`🔁 Updating TokenNo → ${newToken}`);
-//       await AsyncStorage.setItem("TokenNo", newToken);
-//     } else {
-//       console.log("ℹ️ No new token in response.");
-//     }
-
-//     console.log("=======================================================\n");
-//     return response;
-//   },
-//   (error) => {
-//     const logHeader = `\n=== [ERROR @ ${getTime()}] ========================`;
-//     console.error(`${logHeader}\n❌ API Error:`, error.message);
-
-//     if (error.response) {
-//       console.error("🔹 Status:", error.response.status);
-//       console.error("🔹 Data:", error.response.data);
-//     } else if (error.request) {
-//       console.error("🔹 No response received from server.");
-//     } else {
-//       console.error("🔹 Request setup error:", error.message);
-//     }
-
-//     console.error("=======================================================\n");
-//     return Promise.reject(error);
-//   }
-// );
 api.interceptors.response.use(
   async (response) => {
     const newToken = response?.data?.TokenNo;
@@ -270,3 +230,45 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// ============================================================
+// 🟣 RESPONSE INTERCEPTOR
+// → Automatically save updated TokenNo
+// ============================================================
+// api.interceptors.response.use(
+//   async (response) => {
+//     const newToken = response?.data?.TokenNo;
+//     const logHeader = `\n=== [RESPONSE @ ${getTime()}] ========================`;
+
+//     console.log(
+//       `${logHeader}\n🔹 URL: ${response.config?.url}\n🔹 Status: ${response.status}`
+//     );
+//     console.log("🔹 Response Data:", response.data);
+
+//     if (newToken) {
+//       console.log(`🔁 Updating TokenNo → ${newToken}`);
+//       await AsyncStorage.setItem("TokenNo", newToken);
+//     } else {
+//       console.log("ℹ️ No new token in response.");
+//     }
+
+//     console.log("=======================================================\n");
+//     return response;
+//   },
+//   (error) => {
+//     const logHeader = `\n=== [ERROR @ ${getTime()}] ========================`;
+//     console.error(`${logHeader}\n❌ API Error:`, error.message);
+
+//     if (error.response) {
+//       console.error("🔹 Status:", error.response.status);
+//       console.error("🔹 Data:", error.response.data);
+//     } else if (error.request) {
+//       console.error("🔹 No response received from server.");
+//     } else {
+//       console.error("🔹 Request setup error:", error.message);
+//     }
+
+//     console.error("=======================================================\n");
+//     return Promise.reject(error);
+//   }
+// );

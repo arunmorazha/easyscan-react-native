@@ -7,6 +7,54 @@
 //   return <Redirect href="/(auth)/signup" />;
 // }
 // app/index.tsx
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+// import { Redirect } from "expo-router";
+// import { useEffect, useState } from "react";
+// import { ActivityIndicator, View } from "react-native";
+
+// export default function Index() {
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [hasCredentials, setHasCredentials] = useState(false);
+
+//   useEffect(() => {
+//     checkStoredCredentials();
+//   }, []);
+
+//   const checkStoredCredentials = async () => {
+//     try {
+//       // Check if user has already registered (has BankCode and CBSURL)
+//       const bankCode = await AsyncStorage.getItem("BankCode");
+//       const cbsUrl = await AsyncStorage.getItem("CBSURL");
+
+//       // If both exist, user has registered before
+//       if (bankCode && cbsUrl) {
+//         setHasCredentials(true);
+//       } else {
+//         setHasCredentials(false);
+//       }
+//     } catch (error) {
+//       console.error("Error checking stored credentials:", error);
+//       setHasCredentials(false);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+//         <ActivityIndicator size="large" color="#F9B300" />
+//       </View>
+//     );
+//   }
+
+//   // If user has registered before, go to login
+//   // If first time, go to signup
+//   return (
+//     <Redirect href={hasCredentials ? "/(auth)/signin" : "/(auth)/signup"} />
+//   );
+// }
+// app/index.tsx
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
@@ -14,7 +62,9 @@ import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
-  const [hasCredentials, setHasCredentials] = useState(false);
+  const [redirectTo, setRedirectTo] = useState<
+    "signup" | "signin" | "dashboard"
+  >("signup");
 
   useEffect(() => {
     checkStoredCredentials();
@@ -25,16 +75,36 @@ export default function Index() {
       // Check if user has already registered (has BankCode and CBSURL)
       const bankCode = await AsyncStorage.getItem("BankCode");
       const cbsUrl = await AsyncStorage.getItem("CBSURL");
+      const tokenNo = await AsyncStorage.getItem("TokenNo");
+      const userId = await AsyncStorage.getItem("UserId");
 
-      // If both exist, user has registered before
-      if (bankCode && cbsUrl) {
-        setHasCredentials(true);
-      } else {
-        setHasCredentials(false);
+      console.log("🔹 Auto-login check:", {
+        bankCode: !!bankCode,
+        cbsUrl: !!cbsUrl,
+        tokenNo: !!tokenNo,
+        userId: !!userId,
+      });
+
+      // If user has valid token and credentials, go directly to dashboard
+      if (tokenNo && userId && bankCode && cbsUrl) {
+        console.log("🔹 User already logged in, redirecting to dashboard");
+        setRedirectTo("dashboard");
+      }
+      // If user has registered before but not logged in, go to signin
+      else if (bankCode && cbsUrl) {
+        console.log(
+          "🔹 User registered but not logged in, redirecting to signin"
+        );
+        setRedirectTo("signin");
+      }
+      // If first time, go to signup
+      else {
+        console.log("🔹 First time user, redirecting to signup");
+        setRedirectTo("signup");
       }
     } catch (error) {
       console.error("Error checking stored credentials:", error);
-      setHasCredentials(false);
+      setRedirectTo("signup");
     } finally {
       setIsLoading(false);
     }
@@ -48,9 +118,16 @@ export default function Index() {
     );
   }
 
-  // If user has registered before, go to login
-  // If first time, go to signup
+  // Redirect based on authentication status
   return (
-    <Redirect href={hasCredentials ? "/(auth)/signin" : "/(auth)/signup"} />
+    <Redirect
+      href={
+        redirectTo === "dashboard"
+          ? "/(app)/dashboard"
+          : redirectTo === "signin"
+          ? "/(auth)/signin"
+          : "/(auth)/signup"
+      }
+    />
   );
 }
