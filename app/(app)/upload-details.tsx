@@ -1891,190 +1891,193 @@ const UploadDetailsScreen: React.FC = () => {
   // 🧱 UI Layout
   // ==============================
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      {/* Header */}
-      <SafeAreaView style={{ backgroundColor: "#F9B300" }}>
-        <View style={styles.header}>
-          <View style={styles.left}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <MaterialCommunityIcons
-                name="arrow-left"
-                size={26}
-                color="white"
-              />
+    <View style={{ flex: 1, backgroundColor: "#FFF6FB" }}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        // keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -700}
+      >
+        {/* Header */}
+        <SafeAreaView style={{ backgroundColor: "#F9B300" }}>
+          <View style={styles.header}>
+            <View style={styles.left}>
+              <TouchableOpacity onPress={() => router.back()}>
+                <MaterialCommunityIcons
+                  name="arrow-left"
+                  size={26}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.center}>
+              <Text style={styles.headerText}>Upload Document</Text>
+            </View>
+
+            <View style={styles.right} />
+          </View>
+        </SafeAreaView>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.contentContainer}>
+            {/* Display verified customer details */}
+            <Text style={styles.detailText}>
+              <Text style={styles.detailLabel}>Name:</Text> {name}
+            </Text>
+            <Text style={styles.detailText}>
+              <Text style={styles.detailLabel}>Address:</Text> {address}
+            </Text>
+
+            {/* Session Error */}
+            {errors.session ? (
+              <View style={styles.sessionErrorContainer}>
+                <MaterialCommunityIcons
+                  name="alert-circle"
+                  size={20}
+                  color="#F44336"
+                />
+                <View style={styles.sessionErrorTextContainer}>
+                  <Text style={styles.sessionErrorText}>{errors.session}</Text>
+                  <Text style={styles.sessionErrorSubtext}>
+                    Redirecting to login...
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
+            {/* Success Message */}
+            {successMessage ? (
+              <View style={styles.successContainer}>
+                <MaterialCommunityIcons
+                  name="check-circle"
+                  size={24}
+                  color="#4CAF50"
+                />
+                <Text style={styles.successText}>{successMessage}</Text>
+              </View>
+            ) : null}
+
+            {/* Only show DocType options if verified by Customer ID */}
+            {isCustomerIdVerified && (
+              <View style={styles.documentTypeSection}>
+                <RadioButton label="Photo" value="PHOTO" />
+                <RadioButton label="Signature" value="SIGNATURE" />
+                <RadioButton label="Others" value="OTHERS" />
+              </View>
+            )}
+
+            {/* Document description input */}
+            <TextInput
+              placeholder="Document Description"
+              placeholderTextColor="#A0A0A0"
+              value={description}
+              onChangeText={(text) => {
+                setDescription(text);
+                if (errors.description) clearMessages();
+              }}
+              style={[
+                styles.descriptionInput,
+                errors.description && styles.inputError,
+              ]}
+              multiline
+            />
+            {errors.description ? (
+              <Text style={styles.fieldErrorText}>{errors.description}</Text>
+            ) : null}
+
+            {/* Image Picker Section */}
+            <View
+              style={[
+                styles.uploadArea,
+                imageUri && styles.imagePreviewContainer,
+              ]}
+            >
+              {imageUri ? (
+                <View style={styles.imagePreviewWrapper}>
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={styles.imagePreview}
+                    resizeMode="cover"
+                  />
+                  {/* <Text style={styles.imageReadyText}>Image Ready</Text> */}
+                  <TouchableOpacity
+                    onPress={() => {
+                      setImageUri(null);
+                      clearMessages();
+                    }}
+                    style={styles.reselectButton}
+                  >
+                    <Text style={styles.reselectText}>Select Another</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    style={styles.uploadOption}
+                    onPress={() => pickImage(true)}
+                  >
+                    <MaterialCommunityIcons
+                      name="camera"
+                      size={40}
+                      color="#707070"
+                    />
+                    <Text style={styles.uploadText}>Camera</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.uploadOption}
+                    onPress={() => pickImage(false)}
+                  >
+                    <MaterialCommunityIcons
+                      name="image"
+                      size={40}
+                      color="#707070"
+                    />
+                    <Text style={styles.uploadText}>Gallery</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+            {errors.image ? (
+              <Text style={styles.fieldErrorText}>{errors.image}</Text>
+            ) : null}
+
+            {/* General Error */}
+            {errors.general ? (
+              <View style={styles.errorContainer}>
+                <MaterialCommunityIcons
+                  name="alert-circle"
+                  size={20}
+                  color="#F44336"
+                />
+                <Text style={styles.errorText}>{errors.general}</Text>
+              </View>
+            ) : null}
+
+            {/* Upload Button */}
+            <TouchableOpacity
+              style={[
+                styles.button,
+                (loading || successMessage) && styles.buttonDisabled,
+              ]}
+              onPress={handleUpload}
+              disabled={loading || !!successMessage}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>
+                  {successMessage ? "Uploaded Successfully" : "Update"}
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
-
-          <View style={styles.center}>
-            <Text style={styles.headerText}>Upload Document</Text>
-          </View>
-
-          <View style={styles.right} />
-        </View>
-      </SafeAreaView>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.contentContainer}>
-          {/* Display verified customer details */}
-          <Text style={styles.detailText}>
-            <Text style={styles.detailLabel}>Name:</Text> {name}
-          </Text>
-          <Text style={styles.detailText}>
-            <Text style={styles.detailLabel}>Address:</Text> {address}
-          </Text>
-
-          {/* Session Error */}
-          {errors.session ? (
-            <View style={styles.sessionErrorContainer}>
-              <MaterialCommunityIcons
-                name="alert-circle"
-                size={20}
-                color="#F44336"
-              />
-              <View style={styles.sessionErrorTextContainer}>
-                <Text style={styles.sessionErrorText}>{errors.session}</Text>
-                <Text style={styles.sessionErrorSubtext}>
-                  Redirecting to login...
-                </Text>
-              </View>
-            </View>
-          ) : null}
-
-          {/* Success Message */}
-          {successMessage ? (
-            <View style={styles.successContainer}>
-              <MaterialCommunityIcons
-                name="check-circle"
-                size={24}
-                color="#4CAF50"
-              />
-              <Text style={styles.successText}>{successMessage}</Text>
-            </View>
-          ) : null}
-
-          {/* Only show DocType options if verified by Customer ID */}
-          {isCustomerIdVerified && (
-            <View style={styles.documentTypeSection}>
-              <RadioButton label="Photo" value="PHOTO" />
-              <RadioButton label="Signature" value="SIGNATURE" />
-              <RadioButton label="Others" value="OTHERS" />
-            </View>
-          )}
-
-          {/* Document description input */}
-          <TextInput
-            placeholder="Document Description"
-            placeholderTextColor="#A0A0A0"
-            value={description}
-            onChangeText={(text) => {
-              setDescription(text);
-              if (errors.description) clearMessages();
-            }}
-            style={[
-              styles.descriptionInput,
-              errors.description && styles.inputError,
-            ]}
-            multiline
-          />
-          {errors.description ? (
-            <Text style={styles.fieldErrorText}>{errors.description}</Text>
-          ) : null}
-
-          {/* Image Picker Section */}
-          <View
-            style={[
-              styles.uploadArea,
-              imageUri && styles.imagePreviewContainer,
-            ]}
-          >
-            {imageUri ? (
-              <View style={styles.imagePreviewWrapper}>
-                <Image
-                  source={{ uri: imageUri }}
-                  style={styles.imagePreview}
-                  resizeMode="cover"
-                />
-                {/* <Text style={styles.imageReadyText}>Image Ready</Text> */}
-                <TouchableOpacity
-                  onPress={() => {
-                    setImageUri(null);
-                    clearMessages();
-                  }}
-                  style={styles.reselectButton}
-                >
-                  <Text style={styles.reselectText}>Select Another</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <TouchableOpacity
-                  style={styles.uploadOption}
-                  onPress={() => pickImage(true)}
-                >
-                  <MaterialCommunityIcons
-                    name="camera"
-                    size={40}
-                    color="#707070"
-                  />
-                  <Text style={styles.uploadText}>Camera</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.uploadOption}
-                  onPress={() => pickImage(false)}
-                >
-                  <MaterialCommunityIcons
-                    name="image"
-                    size={40}
-                    color="#707070"
-                  />
-                  <Text style={styles.uploadText}>Gallery</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-          {errors.image ? (
-            <Text style={styles.fieldErrorText}>{errors.image}</Text>
-          ) : null}
-
-          {/* General Error */}
-          {errors.general ? (
-            <View style={styles.errorContainer}>
-              <MaterialCommunityIcons
-                name="alert-circle"
-                size={20}
-                color="#F44336"
-              />
-              <Text style={styles.errorText}>{errors.general}</Text>
-            </View>
-          ) : null}
-
-          {/* Upload Button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              (loading || successMessage) && styles.buttonDisabled,
-            ]}
-            onPress={handleUpload}
-            disabled={loading || !!successMessage}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>
-                {successMessage ? "Uploaded Successfully" : "Update"}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -2086,7 +2089,6 @@ export default UploadDetailsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF6FB",
   },
   scrollContent: {
     flexGrow: 1,
@@ -2163,7 +2165,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 16,
     color: "#000",
-    marginTop: 20,
+    marginTop: 15,
   },
   inputError: {
     borderColor: "#F44336",
